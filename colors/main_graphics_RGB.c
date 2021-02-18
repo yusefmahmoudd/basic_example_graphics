@@ -2,11 +2,10 @@
 #include <ti/grlib/grlib.h>
 #include "LcdDriver/Crystalfontz128x128_ST7735.h"
 
-Graphics_Context g_sContext;
 
 #define PRESSED 0
 
-void Initialize();
+void Initialize(Graphics_Context* g_sContext_p);
 void TurnOn_Launchpad_LED1();
 void TurnOff_Launchpad_LED1();
 char SwitchStatus_Launchpad_Button1();
@@ -17,9 +16,11 @@ unsigned colormix(unsigned r,unsigned g,unsigned b) {
 }
 
 int main(void) {
+    Graphics_Context g_sContext;
+
     unsigned i, j, r, g, b;
 
-    Initialize();
+    Initialize(&g_sContext);
 
     while (1)
     {
@@ -45,17 +46,10 @@ int main(void) {
 
 }
 
-// Initialization part is always device dependent and therefore does not change much with HAL
 void initializeButtonLED()
 {
-
-
-
-    // step 2: Initializing LED1, which is on Pin 0 of Port P1 (from page 37 of the Launchpad User Guide)
     GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN0);
 
-    // step 3: Initializing S1 (switch 1 or button 1),
-    // which is on Pin1 of Port 1 (from page 37 of the Launchpad User Guide)
     GPIO_setAsInputPinWithPullUpResistor (GPIO_PORT_P1, GPIO_PIN1);
 }
 
@@ -72,36 +66,33 @@ char SwitchStatus_Launchpad_Button1()
     return (GPIO_getInputPinValue(GPIO_PORT_P1, GPIO_PIN1));
 }
 
+// This function initializes the fonts we can use
 void InitFonts() {
     Crystalfontz128x128_Init();
     Crystalfontz128x128_SetOrientation(LCD_ORIENTATION_UP);
 }
 
-void InitGraphics() {
+// This function initializes the graphics
+void InitGraphics(Graphics_Context *g_sContext_p) {
 
-    Graphics_initContext(&g_sContext,
+    Graphics_initContext(g_sContext_p,
                          &g_sCrystalfontz128x128,
                          &g_sCrystalfontz128x128_funcs);
-    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_YELLOW);
-    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_BLUE);
-    Graphics_setFont(&g_sContext, &g_sFontCmtt16);
-    Graphics_clearDisplay(&g_sContext);
+    Graphics_setForegroundColor(g_sContext_p, GRAPHICS_COLOR_YELLOW);
+    Graphics_setBackgroundColor(g_sContext_p, GRAPHICS_COLOR_BLACK);
+    Graphics_setFont(g_sContext_p, &g_sFontCmtt16);
 
     InitFonts();
+
+    Graphics_clearDisplay(g_sContext_p);
 }
 
 
 
 
-void LCDClearDisplay() {
-    Graphics_clearDisplay(&g_sContext);
-}
-
-void Initialize() {
+// The general initialization function
+void Initialize(Graphics_Context* g_sContext_p) {
     WDT_A_hold(WDT_A_BASE);
 
-    InitGraphics();
-    LCDClearDisplay();
-    initializeButtonLED();
-
+    InitGraphics(g_sContext_p);
 }
