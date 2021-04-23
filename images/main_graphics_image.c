@@ -23,8 +23,8 @@ int main(void) {
 
 }
 
-// This function initializes the fonts we can use
-void InitFonts() {
+// This function initializes the the LCD screen including setting up the SPI connection
+void Init_LCD() {
     Crystalfontz128x128_Init();
     Crystalfontz128x128_SetOrientation(LCD_ORIENTATION_UP);
 }
@@ -39,7 +39,7 @@ void InitGraphics(Graphics_Context *g_sContext_p) {
     Graphics_setBackgroundColor(g_sContext_p, GRAPHICS_COLOR_BLACK);
     Graphics_setFont(g_sContext_p, &g_sFontCmtt16);
 
-    InitFonts();
+    Init_LCD();
 
     Graphics_clearDisplay(g_sContext_p);
 }
